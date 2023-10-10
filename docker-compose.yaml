@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   db:
+    container_name: 'db'
     build: ./db
     image: mysql:latest
     environment:
@@ -9,29 +10,27 @@ services:
     networks:
       - backend
     volumes:
-      - /opt/mysql_data:/var/lib/mysql
+      - 'db:/var/lib/mysql'
     restart: always
   web:
+    container_name: 'web'
     build: ./web
     environment:
       MYSQL_DATABASE: test
       MYSQL_USER: root
       MYSQL_PASSWORD: password
       MYSQL_HOST: db
-    networks:
-      - backend
     ports:
       - "5000:5000"
+    networks:
+      - backend
     depends_on:
       - db
     restart: on-failure 
-  networks:
-    name: test_network
-    # Use a custom driver which takes special options
-    driver: custom-driver-2
-    driver_opts:
-      foo: "1"
-      bar: "2"
-    front-tier:
-      ipv4_address: 172.16.238.10
-      ipv6_address: 2001:3984:3989::10
+  
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  db:
